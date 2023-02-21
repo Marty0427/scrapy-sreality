@@ -12,7 +12,7 @@ class OfferItem(Item):
 class SrealitySpider(scrapy.Spider):
     name = "sreality"
     allowed_domains = ["sreality.cz"]
-    start_urls = [f"https://www.sreality.cz/api/cs/v2/estates?category_main_cb=1&category_type_cb=1&sort=0&per_page=100&page={x}" for x in range(5)]
+    start_urls = [f"https://www.sreality.cz/api/cs/v2/estates?category_main_cb=1&category_type_cb=1&sort=0&per_page=500"]
     max_offers = 500
 
     def parse(self, response):
