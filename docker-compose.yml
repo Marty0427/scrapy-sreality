@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15.2
+    environment:
+      POSTGRES_PASSWORD: PEaQQw
+
+  scrapy:
+    build: .
+    environment:
+      POSTGRES_HOST: localhost
+      POSTGRES_DB: sreality
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    depends_on:
+      - postgres
+
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    ports:
+      - "8080:8080"
+    depends_on:
+      - scrapy
+      - postgres
