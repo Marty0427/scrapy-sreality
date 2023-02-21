@@ -15,8 +15,8 @@ usage: **run_spider.py**
 
 ## Database
 - database configuration is taken from *docker-compose.yml* file
-- connects as *postgres* user and creates the database *sreality*, if it does not exists
-- in database *sreality* creates table *offers* where the data are stored
+- connects as *postgres* user and creates the databse with given name (*sreality* for default), if it does not exists
+- in database creates table *offers* where the data are stored
 
 ## Server
 usage: **app.py**

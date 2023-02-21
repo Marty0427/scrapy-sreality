@@ -9,6 +9,8 @@ import yaml
 class SavingToPostgresPipeline(object):
 
     def __init__(self):
+
+        #loads the docker-compose.yml file to read the postgres password
         with open("docker-compose.yml", "r") as stream:
             cfg = yaml.safe_load(stream)
             self.host = cfg['services']['scrapy']['environment']['POSTGRES_HOST']
@@ -28,11 +30,12 @@ class SavingToPostgresPipeline(object):
             password=self.password
         )
 
+        #check if the database exists
         self.cursor = self.connection.cursor()
         self.cursor.execute(f"SELECT 1 FROM pg_catalog.pg_database WHERE datname = '{self.db}';")
         exists = self.cursor.fetchone()
 
-
+        #if the databse does not exists, create it and close connection for postgres database
         if not exists:
             self.connection.set_isolation_level(0)
             self.connection.autocommit = True
@@ -41,6 +44,7 @@ class SavingToPostgresPipeline(object):
             self.cursor.close()
         self.connection.close()
 
+        #connect to the target database
         self.connection = psycopg2.connect(
             host=self.host,
             database=self.db,
@@ -50,6 +54,7 @@ class SavingToPostgresPipeline(object):
         
         self.cursor = self.connection.cursor()
 
+        #create table offers if it does not exists
         self.cursor.execute("""
         CREATE TABLE IF NOT EXISTS offers(
             id serial PRIMARY KEY,
@@ -67,9 +72,10 @@ class SavingToPostgresPipeline(object):
         self.store_db(item)
         return item
 
+
     def store_db(self, item):
 
-
+        #insert the data into the table
         self.cursor.execute(""" insert into offers (title, image_url) values (%s,%s)""", (
             item["title"],
             item["image_url"]
@@ -80,9 +86,12 @@ class SavingToPostgresPipeline(object):
 
 
     def close_spider(self, spider):
+
+        #load all data from the table
         self.cursor.execute("SELECT * FROM offers")
         records = self.cursor.fetchall()
-
+        
+        #create a static html file with the data
         with open('output.html', mode = 'w', encoding='utf-8') as f:
 
             f.write('''<head>
